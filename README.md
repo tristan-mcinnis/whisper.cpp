@@ -1,52 +1,31 @@
-# Whisper.cpp - Streamlined macOS Realtime Transcription
+# Whisper Realtime macOS
 
-A minimalist, macOS-focused version of whisper.cpp for realtime speech transcription with Voice Activity Detection (VAD) support.
+A streamlined, macOS-only fork of [whisper.cpp](https://github.com/ggml-org/whisper.cpp) optimized for **realtime terminal-based speech transcription**. This version removes all cross-platform complexity to provide a clean, focused tool for voice-to-text on macOS.
 
 ## Features
 
-- **Realtime transcription** from microphone input
-- **Voice Activity Detection (VAD)** for optimized processing  
-- **Multiple language support** with translation to English
-- **macOS optimized** - removed cross-platform bloat
-- **Simple command-line interface** - clean and intuitive
-- **Stable v1.7.6 base** - no segmentation faults
+- **Realtime transcription** from microphone with low latency
+- **Voice Activity Detection (VAD)** with adjustable sensitivity  
+- **Multi-language support** with translation to English
+- **Clean signal handling** - Ctrl+C stops gracefully
+- **macOS native** - uses Accelerate framework and Metal
+- **85% smaller codebase** - removed cross-platform bloat
 
 ## Quick Start
 
 ```bash
+# Install SDL2 (required for audio capture)
+brew install sdl2
+
 # Build everything
-make build
+make
 
-# Compile realtime transcription tool
-c++ -std=c++17 -I./include -I./ggml/include -I./examples -O3 $(pkg-config --cflags sdl2) -c whisper-realtime.cpp -o whisper-realtime.o
-c++ -std=c++17 -O3 whisper-realtime.o -L./build/src -L./build/ggml/src -L./build/examples -lwhisper -lggml -lcommon-sdl -lcommon $(pkg-config --libs sdl2) -framework Foundation -framework Accelerate -o whisper-realtime
+# Download a model
+./download-ggml-model.sh base.en
 
-# Run with default settings
-./run-whisper
-
-# Run with VAD enabled  
-./run-whisper --vad --vad-threshold 0.7
-
-# Transcribe Spanish and translate to English
-./run-whisper --language es --translate
+# Start transcribing
+./run-whisper --model models/ggml-base.en.bin
 ```
-
-## Installation
-
-1. **Prerequisites**: Ensure you have SDL2 installed:
-   ```bash
-   brew install sdl2
-   ```
-
-2. **Build dependencies**:
-   ```bash
-   make build
-   ```
-
-3. **Compile realtime tool** (or use the commands above):
-   ```bash
-   # See Quick Start section
-   ```
 
 ## Usage
 
@@ -54,73 +33,100 @@ c++ -std=c++17 -O3 whisper-realtime.o -L./build/src -L./build/ggml/src -L./build
 ./run-whisper [options]
 
 Options:
-  -h,  --help            show this help message and exit
-  -m,  --model PATH      model file path (default: models/ggml-large-v3-turbo.bin)
-  -l,  --language CODE   language code (en, es, fr, de, etc.)
-  -t,  --threads N       number of threads (default: 4)
+  -h,  --help            show help message
+  -m,  --model PATH      model file path
+  -l,  --language CODE   language (en, es, fr, de, etc.)
+  -t,  --threads N       number of threads
   -c,  --capture ID      capture device ID (-1 = default)
        --vad             enable voice activity detection
-       --vad-threshold N VAD threshold (0.0-1.0, default: 0.6)
+       --vad-threshold N VAD threshold (0.0-1.0)
        --translate       translate to English
-       --gpu             enable GPU acceleration (experimental)
+       --gpu             enable GPU acceleration
 
 Examples:
   ./run-whisper --model models/ggml-base.en.bin
-  ./run-whisper --language es --translate  
+  ./run-whisper --language es --translate
   ./run-whisper --vad --vad-threshold 0.7
 ```
 
-## Models
+## Available Models
 
-Available models:
-- `ggml-base.en.bin` - Fast, English only (~150MB) ✅
-- `ggml-large-v3-turbo.bin` - High accuracy, multilingual (~1.6GB) ✅
+Download models using the included script:
 
-Download additional models:
 ```bash
-bash ./models/download-ggml-model.sh base.en
-bash ./models/download-ggml-model.sh large-v3-turbo
+# English-only models (faster)
+./download-ggml-model.sh tiny.en      # 39 MB
+./download-ggml-model.sh base.en      # 142 MB
+./download-ggml-model.sh small.en     # 466 MB
+./download-ggml-model.sh medium.en    # 1.5 GB
+
+# Multilingual models
+./download-ggml-model.sh tiny         # 39 MB
+./download-ggml-model.sh base         # 142 MB
+./download-ggml-model.sh small        # 466 MB
+./download-ggml-model.sh medium       # 1.5 GB
+./download-ggml-model.sh large-v3-turbo  # 1.6 GB
 ```
 
-## Streamlined Architecture
+## What's Different
 
-This minimal version contains only:
+This fork strips away everything not needed for macOS terminal transcription:
 
-**Essential directories:**
-- `src/` - Core whisper transcription engine  
-- `ggml/` - Machine learning library (CPU, Metal, BLAS backends only)
-- `include/` - Essential headers
-- `examples/` - Only common libraries needed for audio capture
-  - `common-sdl.*` - Audio capture via SDL2
-  - `common.*` - Basic utilities  
-  - `common-whisper.*` - Whisper-specific utilities
-- `models/` - Model files and download scripts
-- `build/` - CMake build output
-- `cmake/` - Essential CMake configuration
+### Removed
+- Cross-platform support (Windows, Linux, Android, iOS, WASM)
+- Language bindings (Python, JavaScript, Go, Java, Ruby)
+- 40+ example programs
+- GPU backends (CUDA, Vulkan, OpenCL, SYCL)
+- Docker configurations
+- Complex build systems
 
-**Key files:**
-- `whisper-realtime.cpp` - Main streamlined application
-- `run-whisper` - Convenience script with library paths
-- `Makefile` - Standard build system
-- `CMakeLists.txt` - Dependency build configuration
+### Kept
+- Core whisper engine
+- GGML with CPU/Metal/BLAS backends
+- SDL2 audio capture
+- Essential utilities
 
-**Removed components:**
-- Cross-platform code (Windows/Linux/WebAssembly)
-- Language bindings (Python, Node.js, Go, Java, etc.)
-- Multiple example programs (40+ removed)
-- GPU backends (CUDA, Vulkan, OpenCL, etc.)
-- Complex model conversion tools
-- Test frameworks and documentation generators
+### Result
+- **~50 files** instead of 300+
+- **Simple `make` build** instead of complex CMake
+- **One executable** instead of dozens
+- **Focused on one thing**: realtime macOS transcription
 
-## Technical Notes
+## Building from Source
 
-- Built on stable whisper.cpp v1.7.6
-- Uses Apple's Accelerate framework for CPU optimization
-- SDL2 for audio capture
+Requirements:
+- macOS (Intel or Apple Silicon)
+- Xcode Command Line Tools
+- SDL2: `brew install sdl2`
+- CMake: `brew install cmake`
+
+```bash
+# Clone the repository
+git clone https://github.com/tristan-mcinnis/whisper.cpp.git
+cd whisper.cpp
+git checkout realtime-macos
+
+# Build
+make
+
+# Run
+./run-whisper --model models/ggml-base.en.bin
+```
+
+## Technical Details
+
+- Based on whisper.cpp v1.7.6 (stable)
 - C++17 standard
+- Uses Apple's Accelerate framework
+- SDL2 for cross-device audio capture
+- Supports Metal acceleration on Apple Silicon
 - Fixed buffer management (no segfaults)
-- **~85% smaller codebase** (from 300+ files to ~50 essential files)
+- Proper SIGINT handling for Ctrl+C
 
 ## License
 
-Same as original whisper.cpp (MIT License)
+MIT License (same as original whisper.cpp)
+
+## Credits
+
+Original [whisper.cpp](https://github.com/ggml-org/whisper.cpp) by Georgi Gerganov and contributors.
