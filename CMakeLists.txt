@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5) # for add_link_options and implicit target directories.
+cmake_minimum_required(VERSION 3.12) # for add_link_options and modern CMake features
 project("whisper.cpp" C CXX)
 project("whisper.cpp" VERSION 1.7.6)
 include(CheckIncludeFileCXX)
@@ -25,8 +25,7 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
     include(git-vars)
 
-    # configure project version
-    configure_file(${CMAKE_SOURCE_DIR}/bindings/javascript/package-tmpl.json ${CMAKE_SOURCE_DIR}/bindings/javascript/package.json @ONLY)
+    # configure project version (JavaScript bindings removed)
 else()
     set(WHISPER_STANDALONE OFF)
 endif()
@@ -207,10 +206,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/whisper.pc"
 # programs, examples and tests
 #
 
-if (WHISPER_BUILD_TESTS AND NOT CMAKE_JS_VERSION)
-    include(CTest)
-    add_subdirectory(tests)
-endif ()
+# Tests removed for streamlined build
 
 if (WHISPER_BUILD_EXAMPLES)
     add_subdirectory(examples)

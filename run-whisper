@@ -1,0 +1,3 @@
+#!/bin/bash
+export DYLD_LIBRARY_PATH=./build/src:./build/ggml/src:./build/examples:$DYLD_LIBRARY_PATH
+./whisper-realtime "$@"

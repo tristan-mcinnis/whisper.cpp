@@ -9,7 +9,7 @@
 // third-party utilities
 // use your favorite implementations
 #define STB_VORBIS_HEADER_ONLY
-#include "stb_vorbis.c"    /* Enables Vorbis decoding. */
+// #include "stb_vorbis.c"    /* Vorbis decoding removed for streamlined build */
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -24,7 +24,7 @@
 #define MA_NO_RESOURCE_MANAGER
 #define MA_NO_NODE_GRAPH
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
+// #include "miniaudio.h"  // MiniAudio removed for streamlined SDL2-only build
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -171,5 +171,6 @@ bool speak_with_file(const std::string & command, const std::string & text, cons
     return true;
 }
 
-#undef STB_VORBIS_HEADER_ONLY
-#include "stb_vorbis.c"
+// Vorbis decoding disabled for streamlined build
+// #undef STB_VORBIS_HEADER_ONLY
+// #include "stb_vorbis.c"
